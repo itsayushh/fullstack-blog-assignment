@@ -37,6 +37,8 @@ export function useBlogMutations() {
     mutationFn: blogService.createBlog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      queryClient.invalidateQueries({ queryKey: ['blog'] });
+      queryClient.invalidateQueries({ queryKey: ['myBlogs'] });
       toast.success('Blog created successfully!');
       router.push('/dashboard');
     },
@@ -51,6 +53,7 @@ export function useBlogMutations() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       queryClient.invalidateQueries({ queryKey: ['blog'] });
+      queryClient.invalidateQueries({ queryKey: ['myBlogs'] });
       toast.success('Blog updated successfully!');
     },
     onError: () => {
@@ -62,6 +65,8 @@ export function useBlogMutations() {
     mutationFn: blogService.deleteBlog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      queryClient.invalidateQueries({ queryKey: ['blog'] });
+      queryClient.invalidateQueries({ queryKey: [ 'myBlogs'] });
       toast.success('Blog deleted successfully!');
     },
     onError: () => {
@@ -72,7 +77,9 @@ export function useBlogMutations() {
   const toggleLikeMutation = useMutation({
     mutationFn: (blogId: string) => blogService.toggleLike(blogId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] });
       queryClient.invalidateQueries({ queryKey: ['blog'] });
+      queryClient.invalidateQueries({ queryKey: ['myBlogs'] });
     },
     onError: () => {
       toast.error('Failed to like/unlike blog');

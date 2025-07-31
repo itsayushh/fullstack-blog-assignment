@@ -76,7 +76,8 @@ export function useAuth() {
 
   const logout = () => {
     Cookies.remove('auth-token');
-    queryClient.clear();
+    queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+    queryClient.removeQueries({ queryKey: ['auth', 'me'] });
     router.push('/');
     toast.success('Logged out successfully!');
   };
