@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Blog } from '@/types';
-import { Heart, MessageCircle, Eye, Clock, User } from 'lucide-react';
+import { Heart, Eye, Clock, User } from 'lucide-react';
 
 interface BlogCardProps {
   blog: Blog;
@@ -9,76 +9,79 @@ interface BlogCardProps {
 
 export default function BlogCard({ blog, showAuthor = true }: BlogCardProps) {
   return (
-    <div className="bg-card rounded-lg shadow-md border border-border overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow duration-200">
+      <div className="p-5">
+        {/* Header with status and date */}
+        <div className="flex items-center justify-between mb-3">
+          <span className={`px-2 py-1 rounded text-xs font-medium ${
             blog.status === 'published' 
-              ? 'bg-accent/20 text-accent-foreground'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
               : blog.status === 'draft'
-              ? 'bg-secondary/20 text-secondary-foreground'
-              : 'bg-muted text-muted-foreground'
+              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
           }`}>
             {blog.status}
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {new Date(blog.createdAt).toLocaleDateString()}
           </span>
         </div>
         
+        {/* Title */}
         <Link href={`/blog/${blog._id}`}>
-          <h3 className="text-xl font-semibold text-card-foreground mb-2 hover:text-primary cursor-pointer line-clamp-2">
+          <h3 className="text-lg font-semibold text-card-foreground mb-3 hover:text-primary cursor-pointer line-clamp-2 leading-tight">
             {blog.title}
           </h3>
         </Link>
 
+        {/* Author */}
         {showAuthor && (
           <div className="flex items-center mb-3">
-            <User className="w-4 h-4 text-muted-foreground mr-2" />
+            <User className="w-3.5 h-3.5 text-muted-foreground mr-2" />
             <span className="text-sm text-muted-foreground">{blog.author.username}</span>
+            <span className="mx-2 text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground">{blog.readTime} min read</span>
           </div>
         )}
         
-        <p className="text-muted-foreground mb-4 line-clamp-3">
+        {/* Excerpt */}
+        <p className="text-muted-foreground mb-4 text-sm line-clamp-2 leading-relaxed">
           {blog.excerpt}
         </p>
 
-        {/* Category */}
-        <div className="mb-4">
-          <span className="inline-block bg-secondary/20 text-secondary-foreground text-xs px-2 py-1 rounded-full">
-            {blog.category}
-          </span>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex flex-wrap gap-2">
-            {blog.tags.slice(0, 3).map((tag) => (
+        {/* Footer with category, tags, and stats */}
+        <div className="space-y-3">
+          {/* Category and limited tags */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-1 rounded font-medium">
+              {blog.category}
+            </span>
+            {blog.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded"
               >
                 {tag}
               </span>
             ))}
-            {blog.tags.length > 3 && (
+            {blog.tags.length > 2 && (
               <span className="text-xs text-muted-foreground">
-                +{blog.tags.length - 3} more
+                +{blog.tags.length - 2}
               </span>
             )}
           </div>
           
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <Heart className="w-4 h-4" />
-              <span>{blog.likeCount || blog.likes.length}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Eye className="w-4 h-4" />
-              <span>{blog.views}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Clock className="w-4 h-4" />
-              <span>{blog.readTime} min</span>
+          {/* Stats */}
+          <div className="flex items-center justify-between pt-2 border-t border-border/50">
+            <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+              <div className="flex items-center space-x-1">
+                <Heart className="w-3.5 h-3.5" />
+                <span>{blog.likeCount || blog.likes.length}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Eye className="w-3.5 h-3.5" />
+                <span>{blog.views}</span>
+              </div>
             </div>
           </div>
         </div>
