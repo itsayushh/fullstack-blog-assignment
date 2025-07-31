@@ -2,7 +2,7 @@
 
 import { useBlog, useBlogMutations } from '@/hooks/use-blog';
 import { useAuth } from '@/hooks/use-auth';
-import { Heart, Eye, Calendar, User, Edit, Clock, Tag, ArrowLeft, Share2 } from 'lucide-react';
+import { Heart, Eye, Calendar, User, Edit, Clock, Tag, ArrowLeft, Share2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ export default function BlogDetailPage() {
   const id = params.id as string;
   const { data: blogData, isLoading, error } = useBlog(id);
   const { user } = useAuth();
-  const { toggleLike, isLiking } = useBlogMutations();
+  const { toggleLike, isLiking, deleteBlog } = useBlogMutations();
   const [isLiked, setIsLiked] = useState(false);
 
   const blog = blogData?.blog;
@@ -65,7 +65,7 @@ export default function BlogDetailPage() {
     );
   }
 
-  const canEdit = user && user.id === blog.author._id;
+  const canEdit = user && user.id === blog.author._id || user?.role === 'admin';
 
   const handleLike = () => {
     if (!user) {
@@ -101,12 +101,27 @@ export default function BlogDetailPage() {
             </Badge>
           </div>
           {canEdit && (
-            <Button asChild size="sm">
-              <Link href={`/edit-blog/${blog._id}`}>
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </Link>
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button asChild size="sm">
+                <Link href={`/edit-blog/${blog._id}`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit
+                </Link>
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="shadow-lg"
+                onClick={() => {
+                  if (confirm('Are you sure you want to delete this blog?')) {
+                    deleteBlog(blog._id);
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </Button>
+            </div>
           )}
         </div>
 
@@ -114,7 +129,7 @@ export default function BlogDetailPage() {
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
           {blog.title}
         </h1>
-        
+
         {/* Author and Meta */}
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-10 w-10">
@@ -155,7 +170,7 @@ export default function BlogDetailPage() {
             <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
             {blog.likeCount || blog.likes.length}
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
