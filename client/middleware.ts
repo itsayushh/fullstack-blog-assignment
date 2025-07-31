@@ -7,11 +7,11 @@ export function middleware(request: NextRequest) {
 
   // Protected routes
   const protectedRoutes = ['/dashboard', '/create-blog', '/edit-blog'];
-  const authRoutes = ['/ login', '/signup'];
+  const authRoutes = ['/auth/login', '/auth/signup'];
 
   // Redirect to login if accessing protected route without token
   if (protectedRoutes.some(route => pathname.startsWith(route)) && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   // Redirect to dashboard if accessing auth routes with token
@@ -23,5 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/create-blog/:path*', '/edit-blog/:path*', '/login', '/signup'],
+  matcher: ['/dashboard/:path*', '/create-blog/:path*', '/edit-blog/:path*', '/auth/login', '/auth/signup'],
 };
