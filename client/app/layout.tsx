@@ -4,6 +4,7 @@ import './globals.css';
 import QueryProvider from '@/components/providers/QueryProvider';
 import Navigation from '@/components/layout/Navigation';
 import { Toaster } from 'react-hot-toast';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,8 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryProvider>
           <div className="min-h-screen bg-background text-foreground">
             <Navigation />
@@ -27,6 +29,7 @@ export default function RootLayout({
             <Toaster position="top-right" />
           </div>
         </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

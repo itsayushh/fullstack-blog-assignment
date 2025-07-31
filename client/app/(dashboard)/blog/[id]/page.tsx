@@ -2,10 +2,15 @@
 
 import { useBlog, useBlogMutations } from '@/hooks/use-blog';
 import { useAuth } from '@/hooks/use-auth';
-import { Heart, Eye, Calendar, User, Edit, Clock, Tag } from 'lucide-react';
+import { Heart, Eye, Calendar, User, Edit, Clock, Tag, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function BlogDetailPage() {
   const params = useParams();
@@ -26,22 +31,36 @@ export default function BlogDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/10">
+        <Card className="w-96 shadow-xl">
+          <CardContent className="flex flex-col items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Loading Article</h3>
+            <p className="text-muted-foreground text-center">Preparing your reading experience...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error || !blog) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Blog not found</h2>
-          <p className="text-muted-foreground">The blog you're looking for doesn't exist.</p>
-          <Link href="/" className="text-primary hover:text-primary/80 mt-4 inline-block">
-            Go back to home
-          </Link>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/10">
+        <Card className="w-96 shadow-xl border-destructive/20">
+          <CardContent className="text-center p-8">
+            <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Tag className="w-8 h-8 text-destructive" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Article Not Found</h2>
+            <p className="text-muted-foreground mb-6">The blog post you're looking for doesn't exist or has been removed.</p>
+            <Button asChild>
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Home
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -58,93 +77,108 @@ export default function BlogDetailPage() {
   };
 
   return (
-    <article className="max-w-4xl mx-auto px-4 py-8">
-      {/* Header */}
+    <article className="max-w-4xl mx-auto px-4 py-6">
+      {/* Simple Back Navigation */}
+      <div className="mb-6">
+        <Button variant="ghost" asChild size="sm">
+          <Link href="/">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Articles
+          </Link>
+        </Button>
+      </div>
+
+      {/* Article Header */}
       <header className="mb-8">
+        {/* Status and Edit */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              blog.status === 'published' 
-                ? 'bg-accent/20 text-accent-foreground'
-                : blog.status === 'draft'
-                ? 'bg-secondary/20 text-secondary-foreground'
-                : 'bg-muted text-muted-foreground'
-            }`}>
+          <div className="flex items-center space-x-2">
+            <Badge variant={blog.status === 'published' ? 'default' : 'secondary'} className="text-xs">
               {blog.status}
-            </span>
-            <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-sm rounded-full">
+            </Badge>
+            <Badge variant="outline" className="text-xs capitalize">
               {blog.category}
-            </span>
+            </Badge>
           </div>
           {canEdit && (
-            <Link
-              href={`/edit-blog/${blog._id}`}
-              className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              <Edit className="w-4 h-4" />
-              <span>Edit</span>
-            </Link>
+            <Button asChild size="sm">
+              <Link href={`/edit-blog/${blog._id}`}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
           )}
         </div>
 
-        <h1 className="text-4xl font-bold text-foreground mb-4">{blog.title}</h1>
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
+          {blog.title}
+        </h1>
         
-        <div className="flex items-center flex-wrap gap-6 text-muted-foreground mb-6">
-          <div className="flex items-center space-x-2">
-            <User className="w-4 h-4" />
-            <span className="font-medium">{blog.author.username}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4" />
-            <span>{new Date(blog.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4" />
-            <span>{blog.readTime} min read</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Eye className="w-4 h-4" />
-            <span>{blog.views} views</span>
+        {/* Author and Meta */}
+        <div className="flex items-center space-x-4 mb-4">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${blog.author.username}`} />
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+              {blog.author.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-medium text-foreground">{blog.author.username}</p>
+            <div className="flex items-center text-sm text-muted-foreground space-x-4">
+              <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+              <span>{blog.readTime} min read</span>
+              <span>{blog.views.toLocaleString()} views</span>
+            </div>
           </div>
         </div>
 
         {/* Tags */}
         {blog.tags.length > 0 && (
           <div className="flex items-center flex-wrap gap-2 mb-6">
-            <Tag className="w-4 h-4 text-muted-foreground" />
             {blog.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full hover:bg-primary/20 cursor-pointer transition-colors"
-              >
+              <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
-              </span>
+              </Badge>
             ))}
           </div>
         )}
 
-        {/* Like Button */}
-        <div className="flex items-center space-x-4 mb-8">
-          <button
+        {/* Like and Share */}
+        <div className="flex items-center space-x-3 mb-8">
+          <Button
             onClick={handleLike}
             disabled={isLiking || !user}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-colors ${
-              isLiked
-                ? 'bg-destructive/10 border-destructive/20 text-destructive'
-                : 'bg-muted border-border text-muted-foreground hover:bg-muted/80'
-            } ${!user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            variant={isLiked ? "default" : "outline"}
+            size="sm"
           >
-            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-            <span>{blog.likeCount || blog.likes.length} likes</span>
-          </button>
+            <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
+            {blog.likeCount || blog.likes.length}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: blog.title,
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+              }
+            }}
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Share
+          </Button>
         </div>
+
+        <Separator className="mb-8" />
       </header>
 
-      {/* Content */}
+      {/* Article Content */}
       <div className="prose prose-lg max-w-none mb-12">
         {blog.content.split('\n').map((paragraph, index) => (
           paragraph.trim() && (
@@ -157,30 +191,31 @@ export default function BlogDetailPage() {
 
       {/* Author Bio */}
       {blog.author.bio && (
-        <section className="bg-muted p-6 rounded-lg mb-8">
-          <h3 className="text-lg font-semibold text-foreground mb-2">About the author</h3>
+        <div className="bg-muted/30 p-6 rounded-lg mb-8">
+          <h3 className="text-lg font-semibold text-foreground mb-3">About the Author</h3>
           <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-medium">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${blog.author.username}`} />
+              <AvatarFallback className="bg-primary text-primary-foreground">
                 {blog.author.username.charAt(0).toUpperCase()}
-              </span>
-            </div>
+              </AvatarFallback>
+            </Avatar>
             <div>
-              <h4 className="font-medium text-foreground">{blog.author.username}</h4>
-              <p className="text-muted-foreground mt-1">{blog.author.bio}</p>
+              <h4 className="font-medium text-foreground mb-1">{blog.author.username}</h4>
+              <p className="text-muted-foreground text-sm leading-relaxed">{blog.author.bio}</p>
             </div>
           </div>
-        </section>
+        </div>
       )}
 
-      {/* Navigation */}
+      {/* Simple Navigation */}
       <div className="text-center">
-        <Link
-          href="/"
-          className="inline-flex items-center space-x-2 text-primary hover:text-primary/80 transition-colors"
-        >
-          <span>← Back to all blogs</span>
-        </Link>
+        <Button asChild variant="outline">
+          <Link href="/">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to All Articles
+          </Link>
+        </Button>
       </div>
     </article>
   );
