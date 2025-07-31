@@ -6,12 +6,12 @@ const blogSchema = new mongoose.Schema({
     required: [true, 'Blog title is required'],
     trim: true,
     minlength: [5, 'Title must be at least 5 characters long'],
-    maxlength: [200, 'Title cannot exceed 200 characters']
+    maxlength: [150, 'Title cannot exceed 150 characters']
   },
   content: {
     type: String,
     required: [true, 'Blog content is required'],
-    minlength: [50, 'Content must be at least 50 characters long']
+    minlength: [20, 'Content must be at least 20 characters long']
   },
   excerpt: {
     type: String,
@@ -59,7 +59,7 @@ const blogSchema = new mongoose.Schema({
 
 blogSchema.pre('save', function(next) {
   if (!this.excerpt && this.content) {
-    this.excerpt = this.content.substring(0, 150).replace(/<[^>]*>/g, '') + '...';
+    this.excerpt = this.content.length > 150 ? this.content.substring(0, 150).replace(/<[^>]*>/g, '') + '...' : this.content.replace(/<[^>]*>/g, '');
   }
   if (this.content) {
     const wordCount = this.content.split(' ').length;
