@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { verifyJwtToken } from './lib/decrypt';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value;
   const { pathname } = request.nextUrl;
 
@@ -12,6 +13,10 @@ export function middleware(request: NextRequest) {
   // Redirect to login if accessing protected route without token
   if (protectedRoutes.some(route => pathname.startsWith(route)) && !token) {
     return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+  const payload =  await verifyJwtToken(token || '');
+  if(protectedRoutes.some(route => pathname.startsWith(route)) && payload && payload?.role === 'reader') {    
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   // Redirect to dashboard if accessing auth routes with token

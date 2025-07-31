@@ -51,7 +51,7 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    router.push('/login');
+    router.push('/auth/login');
     return null;
   }
 
