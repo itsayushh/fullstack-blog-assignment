@@ -24,7 +24,7 @@ export interface Blog {
   category: string;
   status: 'draft' | 'published' | 'archived';
   featured: boolean;
-  likes: string[]; // Array of user IDs
+  likes: {_id:string,username:string}[]; // Array of user IDs
   views: number;
   readTime: number;
   likeCount: number; // Virtual field

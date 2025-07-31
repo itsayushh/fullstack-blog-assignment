@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Heart, Eye, Calendar, User, Edit, Clock, Tag, ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +23,11 @@ export default function BlogDetailPage() {
   const blog = blogData?.blog;
 
   // Check if current user has liked the blog
-  useState(() => {
+  useEffect(() => {
     if (blog && user) {
-      setIsLiked(blog.likes.includes(user.id));
+      setIsLiked(blog.likes.some(like => like._id === user.id));
     }
-  });
+  }, []);
 
   if (isLoading) {
     return (
