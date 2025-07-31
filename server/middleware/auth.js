@@ -77,7 +77,7 @@ const checkOwnership = (Model) => {
       }
 
       // Check if user owns the resource
-      if (resource.author && resource.author.toString() !== req.user._id.toString()) {
+      if (req.user.role=='reader' || (resource.author && resource.author.toString() !== req.user._id.toString())) {
         return res.status(403).json({ 
           message: 'Access denied. You can only modify your own content.' 
         });

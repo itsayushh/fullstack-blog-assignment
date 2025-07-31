@@ -6,9 +6,9 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 // Generate JWT token
-const generateToken = (userId) => {
+const generateToken = ({userId,role}) => {
   return jwt.sign(
-    { userId }, 
+    { userId, role }, 
     process.env.JWT_SECRET || 'your-secret-key',
     { expiresIn: process.env.JWT_EXPIRE || '1d' }
   );
@@ -45,7 +45,7 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken({ userId: user._id, role: user.role });
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -96,7 +96,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken({ userId: user._id, role: user.role });
 
     res.json({
       message: 'Login successful',

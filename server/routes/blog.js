@@ -106,7 +106,7 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/blogs
 // @desc    Create a new blog
 // @access  Private (authenticated users)
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken,checkOwnership(Blog), async (req, res) => {
   try {
     const { title, content, excerpt, tags, category, status } = req.body;
 
