@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { blogService } from '@/services/blog';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { useAuth } from './use-auth';
 
 export function useBlogs(page = 1, search = '') {
   return useQuery({
@@ -16,6 +17,14 @@ export function useBlog(id: string) {
   return useQuery({
     queryKey: ['blog', id],
     queryFn: () => blogService.getBlog(id),
+    enabled: !!id,
+  });
+}
+
+export function useMyBlogs(id?: string) {
+  return useQuery({
+    queryKey: ['myBlogs', id],
+    queryFn: () => blogService.getMyBlogs(),
     enabled: !!id,
   });
 }
