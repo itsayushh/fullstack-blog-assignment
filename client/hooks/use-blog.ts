@@ -6,10 +6,17 @@ import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './use-auth';
 
-export function useBlogs(page = 1, search = '') {
+export function useBlogs({
+  page = 1,
+  search = '',
+  category = '',
+  author = '',
+  tags = '',
+  sort = '',
+}) {
   return useQuery({
-    queryKey: ['blogs', page, search],
-    queryFn: () => blogService.getBlogs({page, search}),
+    queryKey: ['blogs', page, search, category, author, tags, sort],
+    queryFn: () => blogService.getBlogs({page, search, category, author, tags, sort,limit:9}),
   });
 }
 
