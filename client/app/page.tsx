@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useBlogs } from '@/hooks/use-blog';
 import BlogCard from '@/components/blog/BlogCard';
-import BlogSearch from '@/components/blog/BlogSearch';
-import { Search, Sparkles, TrendingUp, Users, BookOpen } from 'lucide-react';
+import { Search, Sparkles, TrendingUp, Users, BookOpen, Filter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
+console.log('HomePage component rendered'); // Debug log to see when component re-renders
+
 export default function HomePage() {
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchInput, setSearchInput] = useState(''); // Separate input state
   const [searchParams, setSearchParams] = useState({
     page: 1,
     search: '',
@@ -17,30 +20,121 @@ export default function HomePage() {
     sort: 'newest',
     tags: '',
   });
-
-  // const { data, isLoading, error } = useBlogs({
-  //   ...searchParams,
-  //   limit: 12,
-  // });
-  const { data, isLoading, error } = useBlogs({
+  
+  console.log('Component state updated:', { searchInput, searchParams }); // Debug log
+  
+  // Memoize the hook parameters to prevent unnecessary re-renders
+  const blogParams = useMemo(() => ({
     page: searchParams.page,
     search: searchParams.search,
     category: searchParams.category,
     sort: searchParams.sort,
     tags: searchParams.tags,
-  });
+  }), [searchParams.page, searchParams.search, searchParams.category, searchParams.sort, searchParams.tags]);
 
-  const handleSearch = (query: string) => {
-    setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
-  };
+  const { data, isLoading, error } = useBlogs(blogParams);
 
-  const handleFilter = (filters: any) => {
-    setSearchParams(prev => ({ ...prev, ...filters, page: 1 }));
-  };
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  }, []);
 
-  const handlePageChange = (newPage: number) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchParams(prev => ({ ...prev, search: searchInput, page: 1 }));
+  }, [searchInput]);
+
+  const handleFilterChange = useCallback((key: string, value: string) => {
+    setSearchParams(prev => ({ ...prev, [key]: value, page: 1 }));
+  }, []);
+
+  const handlePageChange = useCallback((newPage: number) => {
     setSearchParams(prev => ({ ...prev, page: newPage }));
-  };
+  }, []);
+
+  const toggleFilters = useCallback(() => {
+    setShowFilters(prev => !prev);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearchInput('');
+    setSearchParams({
+      page: 1,
+      search: '',
+      category: '',
+      sort: 'newest',
+      tags: '',
+    });
+  }, []);
+
+  // Memoize the search form to prevent unnecessary re-renders
+  const searchForm = useMemo(() => (
+    <div className="mb-6">
+      <div className="bg-card p-4 rounded-lg shadow border border-border mb-6">
+        <form onSubmit={handleSearch} className="flex gap-4 mb-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <input
+              type="text"
+              name="blog-search"
+              placeholder="Search blogs..."
+              value={searchInput}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            onClick={toggleFilters}
+            className="flex items-center space-x-2 border border-border px-4 py-2 rounded-lg hover:bg-muted"
+          >
+            <Filter className="w-4 h-4" />
+            <span>Filters</span>
+          </button>
+        </form>
+
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-border">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Sort By</label>
+              <select
+                value={searchParams.sort}
+                onChange={(e) => handleFilterChange('sort', e.target.value)}
+                className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground"
+              >
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="popular">Popular</option>
+                <option value="title">Title</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Category</label>
+              <select
+                value={searchParams.category}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
+                className="w-full border border-border rounded-lg px-3 py-2 bg-background text-foreground"
+              >
+                <option value="">All Categories</option>
+                <option value="technology">Technology</option>
+                <option value="lifestyle">Lifestyle</option>
+                <option value="business">Business</option>
+                <option value="travel">Travel</option>
+                <option value="food">Food</option>
+                <option value="health">Health</option>
+                <option value="education">Education</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  ), [searchInput, showFilters, searchParams.sort, searchParams.category, handleSearch, handleInputChange, toggleFilters, handleFilterChange]);
 
   if (isLoading) {
     return (
@@ -78,42 +172,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/5">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="py-8">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-4">
-              <Sparkles className="w-3.5 h-3.5" />
-              Welcome to BlogSpace
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-              Blog<span className="text-primary">Space</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-6">
-              Discover amazing stories, insights, and ideas from our community of writers
-            </p>
-            
-            {/* Compact Stats */}
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mt-6">
-              <div className="text-center">
-                <div className="text-xl font-bold text-foreground">{data?.pagination?.totalBlogs || '100+'}</div>
-                <div className="text-xs text-muted-foreground">Stories</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-foreground">50+</div>
-                <div className="text-xs text-muted-foreground">Writers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-xl font-bold text-foreground">1M+</div>
-                <div className="text-xs text-muted-foreground">Reads</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Search and Filters */}
-        <div className="mb-6">
-          <BlogSearch onSearch={handleSearch} onFilter={handleFilter} />
-        </div>
+        {searchForm}
 
         {/* Results Stats */}
         {data && (
@@ -133,7 +193,7 @@ export default function HomePage() {
         {/* Blog Grid */}
         {data?.blogs && data.blogs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {data.blogs.map((blog, index) => (
+            {data.blogs.map((blog) => (
               <div 
                 key={blog._id} 
                 className="group transition-all duration-200 hover:scale-[1.02]"
@@ -150,15 +210,7 @@ export default function HomePage() {
               Try adjusting your search terms or filters.
             </p>
             <Button 
-              onClick={() => {
-                setSearchParams({
-                  page: 1,
-                  search: '',
-                  category: '',
-                  sort: 'newest',
-                  tags: '',
-                });
-              }}
+              onClick={clearFilters}
               variant="outline"
               size="sm"
             >
@@ -167,7 +219,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Simple Pagination */}
+        {/* Pagination */}
         {data && data.pagination.totalPages > 1 && (
           <div className="flex justify-center items-center space-x-2 mb-4">
             <Button
