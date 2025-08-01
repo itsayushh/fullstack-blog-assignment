@@ -22,7 +22,13 @@ export default function HomePage() {
   //   ...searchParams,
   //   limit: 12,
   // });
-  const { data, isLoading, error } = useBlogs(searchParams.page, searchParams.search);
+  const { data, isLoading, error } = useBlogs({
+    page: searchParams.page,
+    search: searchParams.search,
+    category: searchParams.category,
+    sort: searchParams.sort,
+    tags: searchParams.tags,
+  });
 
   const handleSearch = (query: string) => {
     setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
