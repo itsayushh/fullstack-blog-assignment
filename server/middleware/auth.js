@@ -18,6 +18,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
     req.user = user;
+    req.user.role = decoded.role;
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
@@ -39,14 +40,13 @@ const authenticateToken = async (req, res, next) => {
 };
 
 // Check if user has required role
-const authorizeRole = (...roles) => {
+const authorizeRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ 
         message: 'Authentication required.' 
       });
     }
-
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ 
         message: `Access denied. Required role: ${roles.join(' or ')}` 

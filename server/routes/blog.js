@@ -1,6 +1,6 @@
 import express from 'express';
 import Blog from '../models/Blog.js';
-import { authenticateToken, checkOwnership } from '../middleware/auth.js';
+import { authenticateToken, authorizeRole, checkOwnership } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -106,7 +106,7 @@ router.get('/:id', async (req, res) => {
 // @route   POST /api/blogs
 // @desc    Create a new blog
 // @access  Private (authenticated users)
-router.post('/', authenticateToken,checkOwnership(Blog), async (req, res) => {
+router.post('/', authenticateToken,authorizeRole(['admin', 'author']), async (req, res) => {
   try {
     const { title, content, excerpt, tags, category, status } = req.body;
 
