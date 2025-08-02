@@ -46,7 +46,6 @@ const authorizeRole = (...roles) => {
         message: 'Authentication required.' 
       });
     }
-
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ 
         message: `Access denied. Required role: ${roles.join(' or ')}` 
