@@ -41,31 +41,31 @@ A modern, fullstack blogging platform built with **React/Next.js**, powered by *
 
 ### 🧩 Core Features (Required)
 
-- [ ] 🔐 Login
-- [ ] 🧾 Signup
-- [ ] 📝 Create Blog
-- [ ] 📖 Read Blog
-- [ ] ✏️ Update Blog
-- [ ] ❌ Delete Blog
+- [✅] 🔐 Login
+- [✅] 🧾 Signup
+- [✅] 📝 Create Blog
+- [✅] 📖 Read Blog
+- [✅] ✏️ Update Blog
+- [✅] ❌ Delete Blog
 
 ### 🏅 Extra Credit Features
 
-- [ ] 🔁 Forgot Password
-- [ ] 👤 User Role Access (e.g. Admin / Author / Reader)
-- [ ] 💬 Comments / Likes
-- [ ] 🔍 Blog Search / Filtering
-- [ ] 📱 Responsive Design
-- [ ] 📈 Dashboard or Analytics View
+- [✅] 🔁 Forgot Password
+- [✅] 👤 User Role Access (e.g. Admin / Author / Reader)
+- [✅] 💬 Comments / Likes (only like are implemented)
+- [✅] 🔍 Blog Search / Filtering
+- [✅] 📱 Responsive Design
+- [✅] 📈 Dashboard or Analytics View
 
 ---
 
 ## 🚀 Deployment Checklist (Optional)
 
-- [ ] 🌐 Frontend deployed on Vercel / Netlify
-- [ ] 🚀 Backend deployed on Render / Railway / Fly.io
-- [ ] 🛢️ Database hosted on MongoDB Atlas / Supabase / Neon
-- [ ] 🔐 Environment variables properly configured
-- [ ] 📤 Upload .env.example file (no secrets)
+- [✅] 🌐 Frontend deployed on Vercel / Netlify (https://blogspace-sigma-one.vercel.app/)
+- [✅] 🚀 Backend deployed on Render / Railway / Fly.io (https://blogspace-sigma-one.vercel.app/)
+- [✅] 🛢️ Database hosted on MongoDB Atlas / Supabase / Neon
+- [✅] 🔐 Environment variables properly configured
+- [✅] 📤 Upload .env.example file (no secrets)
 
 ---
 
@@ -79,9 +79,17 @@ A modern, fullstack blogging platform built with **React/Next.js**, powered by *
 
 ---
 
-=
-
 ## 🧪 Local Setup
+- ``` git clone https://quickcoursexyz:glpat-8gULdF8cLtA31H42vyk6@git.hirecampaign.com/quickcoursexyz/a44de48b-f01c-4f00-a5fb-13ce1512c17c.git fullstack-blog ```
+- ``` cd fullstack-blog ```
+### For Client
+- ``` cd client ```
+- copy the .env.example to .env and set the variable accordingly
+- ``` npm run dev ```
+### For Server
+- ``` cd server ```
+- copy the .env.example to .env and set the variable accordingly
+- ``` node server.js ```
 
 ### 🔧 Prerequisites
 
