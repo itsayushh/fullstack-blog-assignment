@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Blog } from '@/types';
 import { Heart, Eye, Clock, User } from 'lucide-react';
+import { createExcerpt } from '@/lib/markdown-utils';
 
 interface BlogCardProps {
   blog: Blog;

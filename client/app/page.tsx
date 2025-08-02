@@ -20,8 +20,6 @@ export default function HomePage() {
     tags: '',
   });
 
-  console.log('Component state updated:', { searchInput, searchParams }); // Debug log
-
   // Memoize the hook parameters to prevent unnecessary re-renders
   const blogParams = useMemo(() => ({
     page: searchParams.page,

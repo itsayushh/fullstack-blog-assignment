@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Markdown from '@/components/ui/markdown';
 import toast from 'react-hot-toast';
 
 export default function BlogDetailPage() {
@@ -28,7 +29,7 @@ export default function BlogDetailPage() {
     if (blog && user) {
       setIsLiked(blog.likes.some(like => like._id === user.id));
     }
-  }, []);
+  }, [blog, user]);
 
   if (isLoading) {
     return (
@@ -196,14 +197,8 @@ export default function BlogDetailPage() {
       </header>
 
       {/* Article Content */}
-      <div className="prose prose-lg max-w-none mb-12">
-        {blog.content.split('\n').map((paragraph, index) => (
-          paragraph.trim() && (
-            <p key={index} className="mb-6 text-foreground leading-relaxed text-lg">
-              {paragraph}
-            </p>
-          )
-        ))}
+      <div className="mb-12">
+        <Markdown>{blog.content}</Markdown>
       </div>
 
       {/* Author Bio */}

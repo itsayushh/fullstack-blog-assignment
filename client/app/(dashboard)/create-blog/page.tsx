@@ -3,10 +3,19 @@
 import { useAuth } from '@/hooks/use-auth';
 import BlogForm from '@/components/forms/BlogForm';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 export default function CreateBlogPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      toast.error('You must be logged in to create a blog');
+      router.push('/auth/login');
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -17,8 +26,11 @@ export default function CreateBlogPage() {
   }
 
   if (!user) {
-    router.push('/auth/login');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (

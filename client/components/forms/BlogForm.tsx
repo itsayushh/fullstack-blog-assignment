@@ -5,6 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useBlogMutations } from '@/hooks/use-blog';
 import { Blog } from '@/types';
+import { useState, useEffect } from 'react';
+import { Eye, Edit, FileText } from 'lucide-react';
+import Markdown from '@/components/ui/markdown';
 
 const blogSchema = z.object({
   title: z.string()
@@ -26,10 +29,15 @@ interface BlogFormProps {
 
 export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
   const { createBlog, updateBlog, isCreating, isUpdating } = useBlogMutations();
+  const [previewMode, setPreviewMode] = useState<'edit' | 'preview' | 'split'>('edit');
+  const [watchedContent, setWatchedContent] = useState('');
+  const [watchedTitle, setWatchedTitle] = useState('');
+  const [watchedExcerpt, setWatchedExcerpt] = useState('');
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<BlogFormData>({
     resolver: zodResolver(blogSchema),
@@ -62,6 +70,18 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
   };
 
   const isLoading = isCreating || isUpdating;
+
+  // Use watch to get current values for preview
+  const currentContent = watch('content') || '';
+  const currentTitle = watch('title') || '';
+  const currentExcerpt = watch('excerpt') || '';
+
+  // Update state when form values change to avoid hydration issues
+  useEffect(() => {
+    setWatchedContent(currentContent);
+    setWatchedTitle(currentTitle);
+    setWatchedExcerpt(currentExcerpt);
+  }, [currentContent, currentTitle, currentExcerpt]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -96,18 +116,103 @@ export default function BlogForm({ blog, onSuccess }: BlogFormProps) {
       </div>
 
       <div>
-        <label htmlFor="content" className="block text-sm font-medium text-foreground">
-          Content *
-        </label>
-        <textarea
-          {...register('content')}
-          rows={12}
-          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-ring focus:border-ring bg-background text-foreground"
-          placeholder="Write your blog content here..."
-        />
-        {errors.content && (
-          <p className="mt-1 text-sm text-destructive">{errors.content.message}</p>
-        )}
+        <div className="flex items-center justify-between mb-2">
+          <label htmlFor="content" className="block text-sm font-medium text-foreground">
+            Content *
+          </label>
+          <div className="flex items-center bg-muted rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setPreviewMode('edit')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                previewMode === 'edit'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Edit className="w-4 h-4" />
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewMode('preview')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                previewMode === 'preview'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Eye className="w-4 h-4" />
+              Preview
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewMode('split')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                previewMode === 'split'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Split
+            </button>
+          </div>
+        </div>
+
+        <div className={`grid gap-4 ${previewMode === 'split' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {(previewMode === 'edit' || previewMode === 'split') && (
+            <div>
+              <textarea
+                {...register('content')}
+                rows={12}
+                className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-ring focus:border-ring bg-background text-foreground font-mono text-sm"
+                placeholder="Write your blog content here using Markdown...
+
+# Example Heading
+This is a paragraph with **bold** and *italic* text.
+
+## Code Example
+```javascript
+const greeting = 'Hello, World!';
+console.log(greeting);
+```
+
+- List item 1
+- List item 2
+- List item 3
+
+> This is a blockquote
+"
+              />
+              {errors.content && (
+                <p className="mt-1 text-sm text-destructive">{errors.content.message}</p>
+              )}
+            </div>
+          )}
+
+          {(previewMode === 'preview' || previewMode === 'split') && (
+            <div className="border border-border rounded-md p-4 bg-muted/20">
+              <div className="text-xs text-muted-foreground mb-2 font-medium">PREVIEW</div>
+              {watchedContent ? (
+                <div className="min-h-[200px]">
+                  <Markdown>{watchedContent}</Markdown>
+                </div>
+              ) : (
+                <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p>Start typing to see the markdown preview...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-2 text-xs text-muted-foreground">
+          <p>💡 <strong>Markdown Tips:</strong> Use **bold**, *italic*, `code`, # headings, - lists, {'>'}quotes, and ```code blocks```</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
