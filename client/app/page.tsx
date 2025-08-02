@@ -3,16 +3,15 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useBlogs } from '@/hooks/use-blog';
 import BlogCard from '@/components/blog/BlogCard';
-import { Search, Sparkles, TrendingUp, Users, BookOpen, Filter } from 'lucide-react';
+import { Search, Sparkles, TrendingUp, Users, BookOpen, Filter, Grid3X3, List } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-console.log('HomePage component rendered'); // Debug log to see when component re-renders
-
 export default function HomePage() {
   const [showFilters, setShowFilters] = useState(false);
-  const [searchInput, setSearchInput] = useState(''); // Separate input state
+  const [searchInput, setSearchInput] = useState('');
+  const [layout, setLayout] = useState<'grid' | 'stack'>('grid');
   const [searchParams, setSearchParams] = useState({
     page: 1,
     search: '',
@@ -20,9 +19,9 @@ export default function HomePage() {
     sort: 'newest',
     tags: '',
   });
-  
+
   console.log('Component state updated:', { searchInput, searchParams }); // Debug log
-  
+
   // Memoize the hook parameters to prevent unnecessary re-renders
   const blogParams = useMemo(() => ({
     page: searchParams.page,
@@ -53,6 +52,10 @@ export default function HomePage() {
 
   const toggleFilters = useCallback(() => {
     setShowFilters(prev => !prev);
+  }, []);
+
+  const toggleLayout = useCallback(() => {
+    setLayout(prev => prev === 'grid' ? 'stack' : 'grid');
   }, []);
 
   const clearFilters = useCallback(() => {
@@ -175,30 +178,69 @@ export default function HomePage() {
         {/* Search and Filters */}
         {searchForm}
 
-        {/* Results Stats */}
+        {/* Results Stats and Layout Toggle */}
         {data && (
-          <div className="mb-6 flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>Showing {data.blogs.length} of {data.pagination.totalBlogs} blogs</span>
               {searchParams.search && (
-                <Badge variant="outline" className="text-xs">
-                  "{searchParams.search}"
-                </Badge>
+                <>
+                  <Badge variant="outline" className="text-xs">
+                    "{searchParams.search}"
+                  </Badge>
+                  <Badge
+                    onClick={clearFilters}
+                    className="cursor-pointer text-xs"
+                  >
+                    Clear Filters
+                  </Badge>
+                </>
               )}
             </div>
-            <span>Page {searchParams.page} of {data.pagination.totalPages}</span>
+            
+            {/* Tab-style Layout Toggle */}
+            <div className="flex items-center bg-muted rounded-lg p-1">
+              <button
+                onClick={() => setLayout('grid')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  layout === 'grid'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Grid3X3 className="w-4 h-4" />
+                Grid
+              </button>
+              <button
+                onClick={() => setLayout('stack')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  layout === 'stack'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <List className="w-4 h-4" />
+                List
+              </button>
+            </div>
           </div>
         )}
 
         {/* Blog Grid */}
         {data?.blogs && data.blogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className={layout === 'grid' 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+            : "space-y-3 mb-8"
+          }>
             {data.blogs.map((blog) => (
-              <div 
-                key={blog._id} 
-                className="group transition-all duration-200 hover:scale-[1.02]"
+              <div
+                key={blog._id}
+                className={layout === 'grid' 
+                  ? "group transition-all duration-200 hover:scale-[1.02]"
+                  : "group transition-all duration-200"
+                }
               >
-                <BlogCard blog={blog} />
+                <BlogCard blog={blog} layout={layout} />
               </div>
             ))}
           </div>
@@ -209,7 +251,7 @@ export default function HomePage() {
             <p className="text-muted-foreground mb-4">
               Try adjusting your search terms or filters.
             </p>
-            <Button 
+            <Button
               onClick={clearFilters}
               variant="outline"
               size="sm"
@@ -230,16 +272,16 @@ export default function HomePage() {
             >
               Previous
             </Button>
-            
+
             <div className="flex space-x-1">
               {Array.from({ length: Math.min(5, data.pagination.totalPages) }, (_, i) => {
                 const pageNum = Math.max(1, Math.min(
                   data.pagination.totalPages - 4,
                   Math.max(1, searchParams.page - 2)
                 )) + i;
-                
+
                 if (pageNum > data.pagination.totalPages) return null;
-                
+
                 const isActive = pageNum === searchParams.page;
                 return (
                   <Button
@@ -254,7 +296,7 @@ export default function HomePage() {
                 );
               })}
             </div>
-            
+
             <Button
               onClick={() => handlePageChange(searchParams.page + 1)}
               disabled={!data.pagination.hasNext}

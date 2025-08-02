@@ -45,21 +45,23 @@ export default function Navigation() {
 
             {isAuthenticated ? (
               <>
-                <Link
-                  href="/dashboard"
-                  className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-md hover:bg-muted/50"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium">Dashboard</span>
-                </Link>
-                
                 {(user?.role === 'author' || user?.role === 'admin') && (
-                  <Button asChild size="sm">
-                    <Link href="/create-blog">
-                      <PenTool className="w-4 h-4 mr-1.5" />
-                      Write
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center space-x-1.5 text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-md hover:bg-muted/50"
+                    >
+                      <User className="w-4 h-4" />
+                      <span className="text-sm font-medium">Dashboard</span>
                     </Link>
-                  </Button>
+
+                    <Button asChild size="sm">
+                      <Link href="/create-blog">
+                        <PenTool className="w-4 h-4 mr-1.5" />
+                        Write
+                      </Link>
+                    </Button>
+                  </>
                 )}
 
                 <ThemeToggle />
@@ -148,7 +150,7 @@ export default function Navigation() {
                     <User className="w-4 h-4" />
                     <span className="text-sm">Dashboard</span>
                   </Link>
-                  
+
                   {(user?.role === 'author' || user?.role === 'admin') && (
                     <Link
                       href="/create-blog"

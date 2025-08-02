@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import toast from 'react-hot-toast';
 
 export default function BlogDetailPage() {
   const params = useParams();
@@ -69,7 +70,7 @@ export default function BlogDetailPage() {
 
   const handleLike = () => {
     if (!user) {
-      // Redirect to login or show login modal
+      toast.error('You must be logged in to like a blog');
       return;
     }
     toggleLike(blog._id);
@@ -143,7 +144,6 @@ export default function BlogDetailPage() {
             <div className="flex items-center text-sm text-muted-foreground space-x-4">
               <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
               <span>{blog.readTime} min read</span>
-              <span>{blog.views.toLocaleString()} views</span>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function BlogDetailPage() {
         <div className="flex items-center space-x-3 mb-8">
           <Button
             onClick={handleLike}
-            disabled={isLiking || !user}
+            disabled={isLiking || !user || user.role==='reader'}
             variant={isLiked ? "default" : "outline"}
             size="sm"
           >
@@ -175,6 +175,7 @@ export default function BlogDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => {
+              toast.success('Blog URL copied to clipboard');
               if (navigator.share) {
                 navigator.share({
                   title: blog.title,
@@ -183,6 +184,7 @@ export default function BlogDetailPage() {
               } else {
                 navigator.clipboard.writeText(window.location.href);
               }
+
             }}
           >
             <Share2 className="w-4 h-4 mr-2" />
